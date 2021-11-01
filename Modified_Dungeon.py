@@ -42,9 +42,7 @@ class ModifiedDungeon(Dungeon):
               - moved: whether an agent made a move (didn't collide with an obstacle)        
         '''
         if info['moved']:
-            reward = 0.5 * reward + info['total_explored'] / info['total_cells']
-            if info['is_new']:
-                reward += 0.2
+            reward = 0.5 * reward + (info['total_explored'] / info['total_cells']) - (info['step'] / self._max_steps)
         else:
             reward = -1
         return observation, reward, done, info
