@@ -11,6 +11,10 @@ from tqdm import tqdm
 
 SAVE_PATH = os.getenv("HOME") + '/save/'
 CHECKPOINT_PATH = os.getenv("HOME") + '/ppo/'
+if not os.path.exists(SAVE_PATH):
+    os.makedirs(SAVE_PATH)
+if not os.path.exists(CHECKPOINT_PATH):
+    os.makedirs(CHECKPOINT_PATH)
 RUNS = 2
 TRAIN = True
 
@@ -57,13 +61,19 @@ config['vf_loss_coeff'] = 1.0
 def train(agent, save_path, iterations = 200):
     print('Start to train')
     checkpoint_dir = join(save_path, "checkpoints")
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
     gif_dir = join(save_path, "gifs")
+    if not os.path.exists(gif_dir):
+        os.makedirs(gif_dir)
 
     for n in tqdm(range(iterations)):
         result = agent.train()
         file_name = agent.save(checkpoint_dir)
         logging_results(result, n)
-        print(f'''iter = {n + 1}, \n episode_reward_min = {result["episode_reward_min"]}, \n
+        print(f'''\n 
+        iter = {n + 1}, \n 
+        episode_reward_min = {result["episode_reward_min"]}, \n
         episode_reward_mean =  {result['episode_reward_mean']}, \n
         'episode_reward_max'= {result['episode_reward_max']}, \n
         'episode_len_mean'= {result['episode_len_mean']}''')
@@ -81,7 +91,7 @@ def train(agent, save_path, iterations = 200):
 
             frames = []
 
-            for _ in range(500):
+            for _ in range(400):
                 action = agent.compute_single_action(obs)
 
                 frame = Image.fromarray(env._map.render(env._agent)).convert('RGB').resize((500, 500), Image.NEAREST).quantize()
@@ -102,7 +112,7 @@ def val(agent, save_path, iters):
     for i in tqdm(iters):
         frames = []
 
-        for _ in range(500):
+        for _ in range(400):
             action = agent.compute_single_action(obs)
 
             frame = Image.fromarray(env._map.render(env._agent)).convert('RGB').resize((500, 500), Image.NEAREST).quantize()
