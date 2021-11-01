@@ -8,7 +8,7 @@ from ray import tune
 import wandb
 from PIL import Image
 from Modified_Dungeon import ModifiedDungeon
-from tqmd import tqmd
+from tqdm import tqdm
 
 SAVE_PATH = os.getenv("HOME") + '/save/'
 CHECKPOINT_PATH = os.getenv("HOME") + '/ppo/'
@@ -60,7 +60,7 @@ def train(agent, save_path, iterations = 200):
     checkpoint_dir = join(save_path, "checkpoints")
     gif_dir = join(save_path, "gifs")
 
-    for n in tqmd(range(iterations)):
+    for n in tqdm(range(iterations)):
         result = agent.train()
         file_name = agent.save(checkpoint_dir)
         logging_results(result, n)
@@ -100,7 +100,7 @@ def val(agent, save_path, iters):
     env = ModifiedDungeon(20, 20, 3, min_room_xy=5, max_room_xy=10, vision_radius=5)
     obs = env.reset()
 
-    for i in tqmd(iters):
+    for i in tqdm(iters):
         frames = []
 
         for _ in range(500):
