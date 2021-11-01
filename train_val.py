@@ -102,8 +102,9 @@ def train(agent, save_path, iterations = 200):
                     break
 
             path_for_output = join(gif_dir, f'output_{n + 1}.gif')
-            wandb.log({'gifs': wandb.Video(path_for_output, fps=30, format='gif')})
             frames[0].save(path_for_output, save_all=True, append_images=frames[1:], loop=0, duration=1000/60)
+            wandb.log({'gifs': wandb.Video(path_for_output, fps=30, format='gif')})
+
 
 def val(agent, save_path, iters):
     env = ModifiedDungeon(20, 20, 3, min_room_xy=5, max_room_xy=10, vision_radius=5)
