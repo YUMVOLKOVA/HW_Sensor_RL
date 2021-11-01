@@ -10,14 +10,8 @@ from Modified_Dungeon import ModifiedDungeon
 from tqdm import tqdm
 
 SAVE_PATH = os.getcwd() + '/save/'
-CHECKPOINT_PATH = os.getcwd() + '/ppo/'
 if not os.path.exists(SAVE_PATH):
     os.makedirs(SAVE_PATH)
-if not os.path.exists(CHECKPOINT_PATH):
-    os.makedirs(CHECKPOINT_PATH)
-RUNS = 2
-TRAIN = True
-
 
 def logging_results(results, iteration):
     wandb.log({'iteration': iteration + 1,
@@ -59,7 +53,7 @@ config['lambda'] = 0.95
 config['vf_loss_coeff'] = 1.0
 
 def train(agent, save_path, iterations = 200):
-    print('Start to train')
+    print('START TO TRAIN')
     checkpoint_dir = join(save_path, "checkpoints")
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
@@ -79,14 +73,13 @@ def train(agent, save_path, iterations = 200):
         'episode_len_mean'= {result['episode_len_mean']}''')
 
         if (n + 1) % 5 == 0:
-            artifact = wandb.Artifact("model", type="model")
-            artifact.add_dir(Path(file_name).parent.absolute())
-            wandb.log_artifact(artifact)
+            wandb_artifact = wandb.Artifact("model", type="model")
+            wandb_artifact.add_dir(Path(file_name).parent.absolute())
+            wandb.log_artifact(wandb_artifact)
 
             env = ModifiedDungeon(20, 20, 3, min_room_xy=5, max_room_xy=10, vision_radius=5)
             env.seed(seed)
             env.action_space.seed(seed)
-
             obs = env.reset()
 
             frames = []
@@ -105,42 +98,12 @@ def train(agent, save_path, iterations = 200):
             frames[0].save(path_for_output, save_all=True, append_images=frames[1:], loop=0, duration=1000/60)
             wandb.log({'gifs': wandb.Video(path_for_output, fps=30, format='gif')})
 
+ray.shutdown()
+ray.init(ignore_reinit_error=True)
+wandb.init(project='ProdStory-Sensor', entity="yumvolkova", config=config)
+tune.register_env("ModifiedDungeon", lambda config: ModifiedDungeon(**config))
 
-def val(agent, save_path, iters):
-    env = ModifiedDungeon(20, 20, 3, min_room_xy=5, max_room_xy=10, vision_radius=5)
-    obs = env.reset()
+agent = ppo.PPOTrainer(config)
+train(agent, SAVE_PATH)
 
-    for i in tqdm(iters):
-        frames = []
-
-        for _ in range(400):
-            action = agent.compute_single_action(obs)
-
-            frame = Image.fromarray(env._map.render(env._agent)).convert('RGB').resize((500, 500), Image.NEAREST).quantize()
-            frames.append(frame)
-
-            obs, reward, done, info = env.step(action)
-            if done:
-                break
-        path_for_output = join(save_path, f'val_{n + 1}.gif')
-        frames[0].save(path_for_output, save_all=True, append_images=frames[1:], loop=0, duration=1000/60)
-        obs = env.reset()
-
-
-
-if TRAIN:
-    ray.shutdown()
-    ray.init(ignore_reinit_error=True)
-    wandb.init(project='ProdStory-Sensor', entity="yumvolkova", config=config)
-    tune.register_env("ModifiedDungeon", lambda config: ModifiedDungeon(**config))
-
-    agent = ppo.PPOTrainer(config)
-    train(agent, SAVE_PATH)
-else:
-    ray.shutdown()
-    ray.init(ignore_reinit_error=True)
-    tune.register_env("ModifiedDungeon", lambda config: ModifiedDungeon(**config))
-    agent = ppo.PPOTrainer(config)
-    agent.restore(CHECKPOINT_PATH)
-    val(agent, SAVE_PATH, RUNS)
 
