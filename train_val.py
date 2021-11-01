@@ -4,6 +4,7 @@ from pathlib import Path
 import ray
 import ray.rllib.agents.ppo as ppo
 from ray import tune
+!pip install wandb
 import wandb
 from PIL import Image
 from Modified_Dungeon import ModifiedDungeon
@@ -55,6 +56,7 @@ config['lambda'] = 0.95
 config['vf_loss_coeff'] = 1.0
 
 def train(agent, save_path, iterations = 200):
+    print('Start to train')
     checkpoint_dir = join(save_path, "checkpoints")
     gif_dir = join(save_path, "gifs")
 
@@ -62,6 +64,10 @@ def train(agent, save_path, iterations = 200):
         result = agent.train()
         file_name = agent.save(checkpoint_dir)
         logging_results(result, n)
+        print(f'''iter = {n + 1}, \n episode_reward_min = {result["episode_reward_min"]}, \n
+        episode_reward_mean =  {result['episode_reward_mean']}, \n
+        'episode_reward_max'= {result['episode_reward_max']}, \n
+        'episode_len_mean'= {result['episode_len_mean']}''')
 
         if (n + 1) % 5 == 0:
             artifact = wandb.Artifact("model", type="model")
@@ -85,6 +91,7 @@ def train(agent, save_path, iterations = 200):
                 obs, reward, done, info = env.step(action)
                 if done:
                     break
+
             path_for_output = join(gif_dir, f'output_{n + 1}.gif')
             wandb.log({'gifs': wandb.Video(path_for_output, fps=30, format='gif')})
             frames[0].save(path_for_output, save_all=True, append_images=frames[1:], loop=0, duration=1000/60)
@@ -93,7 +100,7 @@ def val(agent, save_path, iters):
     env = ModifiedDungeon(20, 20, 3, min_room_xy=5, max_room_xy=10, vision_radius=5)
     obs = env.reset()
 
-    for i in iters:
+    for i in tqmd(iters):
         frames = []
 
         for _ in range(500):
@@ -111,7 +118,7 @@ def val(agent, save_path, iters):
 
 
 
-if TRAIN == True:
+if TRAIN:
     ray.shutdown()
     ray.init(ignore_reinit_error=True)
     wandb.init(project='ProdStory-Sensor', entity="yumvolkova", config=config)
