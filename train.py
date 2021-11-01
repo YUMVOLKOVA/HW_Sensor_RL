@@ -35,7 +35,8 @@ config['env_config'] = {
     'max_room_xy': 10,
     'observation_size': 11,
     'vision_radius': 5,
-    'max_steps': 1000
+    'max_steps': 1000,
+    'seed': seed
 }
 config['model'] = {
     'conv_filters': [
