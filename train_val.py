@@ -9,8 +9,8 @@ from PIL import Image
 from Modified_Dungeon import ModifiedDungeon
 from tqdm import tqdm
 
-SAVE_PATH = os.getenv("HOME") + '/save/'
-CHECKPOINT_PATH = os.getenv("HOME") + '/ppo/'
+SAVE_PATH = os.getcwd() + '/save/'
+CHECKPOINT_PATH = os.getcwd() + '/ppo/'
 if not os.path.exists(SAVE_PATH):
     os.makedirs(SAVE_PATH)
 if not os.path.exists(CHECKPOINT_PATH):
