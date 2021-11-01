@@ -4,7 +4,6 @@ from pathlib import Path
 import ray
 import ray.rllib.agents.ppo as ppo
 from ray import tune
-!pip install wandb
 import wandb
 from PIL import Image
 from Modified_Dungeon import ModifiedDungeon
