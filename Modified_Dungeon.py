@@ -31,7 +31,7 @@ class ModifiedDungeon(Dungeon):
     def step(self, action):
         observation, reward, done, info = super().step(action)
         observation = observation[:, :, :-1]
-        # reward = reward - (info['step'] / self._max_steps) + (info['new_explored'] / info['step'])
+        reward = reward - (info['step'] / self._max_steps) + (info['new_explored'] / info['step'])
 
         '''
         info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
@@ -41,8 +41,8 @@ class ModifiedDungeon(Dungeon):
               - new_explored: number of explored cells during this step
               - moved: whether an agent made a move (didn't collide with an obstacle)        
         '''
-        if info['moved']:
-            reward = 0.5 * reward + (info['total_explored'] / info['total_cells']) - (info['step'] / self._max_steps)
-        else:
-            reward = -1
+#         if info['moved']:
+#             reward = 0.5 * reward + (info['total_explored'] / info['total_cells']) - (info['step'] / self._max_steps)
+#         else:
+#             reward = -1
         return observation, reward, done, info
