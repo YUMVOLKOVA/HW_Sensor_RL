@@ -49,3 +49,5 @@ else:
 ```
 reward = 0.1 + 20 * (info['total_explored'] / info['total_cells'])- (info['step'] / self._max_steps)
 ```
+![plot](https://github.com/YUMVOLKOVA/ProdStory-Sensor/blob/main/second.gif)
+
