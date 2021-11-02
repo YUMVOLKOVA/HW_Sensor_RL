@@ -12,7 +12,7 @@
 `git submodule update --remote`
 
 3. Run training
-`python ppo_example.py`
+`python train.py`
 
 ### Награда 
 reward = reward - (info['step'] / self.max_steps) + (info['new_explored'] / info['step'])
