@@ -34,11 +34,16 @@ reward = reward - (info['step'] / self.max_steps) + (info['new_explored'] / info
 
 [wandb](https://wandb.ai/yumvolkova/ProdStory-Sensor?workspace=user-yumvolkova)
 
-Награда 
+Награда (13)
 
 ```
 if info['moved']:
   reward = 0.5 * reward + (info['total_explored'] / info['total_cells']) - (info['step'] / self._max_steps)
 else:
   reward = -1
+```
+Награда (15)
+
+```
+reward = 0.1 + 20 * (info['total_explored'] / info['total_cells'])- (info['step'] / self._max_steps)
 ```
