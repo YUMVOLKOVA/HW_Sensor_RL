@@ -32,7 +32,7 @@ class ModifiedDungeon(Dungeon):
         observation, reward, done, info = super().step(action)
         observation = observation[:, :, :-1]
         reward = reward - (info['step'] / self._max_steps) + (info['new_explored'] / info['step'])
-
+#         reward = 0.1 + 20 * (info['total_explored'] / info['total_cells'])- (info['step'] / self._max_steps)
         '''
         info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)
               - step: current step number
